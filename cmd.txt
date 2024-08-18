@@ -1,0 +1,7 @@
+forc build
+forc deploy 5461173083b3c83db02693f9671fb55b993243e4dfd2183d0776a1ff2c2b63b8 --testnet
+
+
+Network: https://testnet.fuel.network
+Contract ID: 0xbfa46a3867859b4499ed1b891ff6e265f6d682b08fed1e2aea22964470eafd17
+Deployed in block 0079aa7a

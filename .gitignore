@@ -1,0 +1,11 @@
+# Dependencies
+node_modules
+
+# Environment varibales
+.env
+
+.env.production
+.env.development
+.env.local
+
+app.log
