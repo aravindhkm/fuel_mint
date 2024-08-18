@@ -82,9 +82,9 @@ const main = async () => {
         }
       };
 
-    // let initializeOwner = await contractInstance.functions.constructor(ownerAddress).call();
-    // let ownership = await initializeOwner.waitForResult();
-    // console.log("Ownership initialized:", ownership);
+    // let initialize_owner_tx = await contractInstance.functions.constructor(ownerAddress).call();
+    // let ownership = await initialize_owner_tx.waitForResult();
+    // console.log("Ownership transactionId:", ownership.transactionId);
 
     const {transactionId} = await contractInstance.functions.mint(recipientIdentity,stringSubId, 1e7).call();
     console.log("transactionResult", transactionId);    
