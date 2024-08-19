@@ -3,7 +3,7 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { readFileSync } from 'fs';
 import src20Abi from "../../sway-applications/native-asset/native-asset-contract/out/debug/native-asset-contract-abi.json" with { type: "json" };
-import { Contract, ContractFactory, Provider, WalletUnlocked, Address , getRandomB256} from 'fuels';
+import { Contract, ContractFactory, Provider, WalletUnlocked, Address, ReceiptMintCoder , getRandomB256} from 'fuels';
 
 const testnet = "https://testnet.fuel.network/v1/graphql";
 const sender = "0x5461173083b3c83db02693f9671fb55b993243e4dfd2183d0776a1ff2c2b63b8"; // account 1
@@ -26,13 +26,10 @@ const getBalance = async () => {
     const owner_balance = await OWNER.getBalance();
     owner_address = (await OWNER.address).bech32Address;
     const receiver_balance = await RECIPIENT.getBalance();
-    receiver_address = (await RECIPIENT.address).bech32Address;
+    receiver_address = (await RECIPIENT.address).bech32Address;    
 
-    // console.log("Owner", OWNER);
-    
-
-    // console.log("OWNER balance", owner_address, Number(owner_balance));
-    // console.log("RECIPIENT balance", receiver_address, Number(receiver_balance));
+    console.log("OWNER balance", owner_address, Number(owner_balance));
+    console.log("RECIPIENT balance", receiver_address, Number(receiver_balance));
 }
 
 const deploy = async() => {
@@ -64,7 +61,7 @@ const main = async () => {
     console.log("return value", value);
     
     const zeroX = "0x";
-    let subId = Number(value)
+    let subId = Number(4)
     const fill0 = subId.toString().padStart(64, "0")
     const stringSubId = fill0.padStart(66, zeroX);
     console.log("stringSubId", stringSubId);
@@ -86,8 +83,25 @@ const main = async () => {
     // let ownership = await initialize_owner_tx.waitForResult();
     // console.log("Ownership transactionId:", ownership.transactionId);
 
-    const {transactionId} = await contractInstance.functions.mint(recipientIdentity,stringSubId, 1e7).call();
-    console.log("transactionResult", transactionId);    
+    // const {transactionId} = await contractInstance.functions.mint(recipientIdentity,stringSubId, 1e7).call();
+    // console.log("transactionResult", transactionId);  
+
+
+    const assetId = ReceiptMintCoder.getAssetId(contract_id, stringSubId);
+    console.log("assetId", assetId);
+    
+    const src20_balance_before = await RECIPIENT.getBalance(assetId);
+    console.log("src20_balance_before", Number(src20_balance_before));
+
+    // const tx = await RECIPIENT.transfer(owner_address, 1e5,assetId)
+    // console.log("tx", tx.id);
+
+    // const src20_balance_after = await RECIPIENT.getBalance(assetId);
+    // console.log("src20_balance_after", Number(src20_balance_after));
+
+    // const tx = await OWNER.transfer(receiver_address, 0.1e9,BaseAssetId)
+    // console.log("tx", tx.id);
+
 }
 
 main()

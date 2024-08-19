@@ -18,9 +18,9 @@ const getBalance = async() => {
     receiver_address = (await RECIPIENT.address).bech32Address;
 
     console.log("OWNER balance", owner_address, Number(owner_balance) );
-    // console.log("OWNER address", owner_address );
+    // console.log("OWNER address", owner_address);
     console.log("RECIPIENT balance", receiver_address ,Number(receiver_balance) );
-    // console.log("RECIPIENT address", receiver_address );
+    // console.log("RECIPIENT address", receiver_address);
 }
 
 const main = async (_provider) => {
