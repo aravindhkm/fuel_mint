@@ -50,21 +50,23 @@ const main = async () => {
     await getBalance();
     
     const contractInstance = new Contract(market_contract_id, contractAbi, OWNER);
-    const tokenIstance = new Contract(token_contract_id, src20Abi, OWNER);
+    const tokenInstance = new Contract(token_contract_id, src20Abi, OWNER);
 
     
-    const total_assets = await tokenIstance.functions.total_assets().simulate();
+    const total_assets = await tokenInstance.functions.total_assets().simulate();
     console.log("total_assets ---------------->", Number(total_assets.value));
     
-    // const zeroX = "0x";
-    // let subId = Number(4)
-    // const fill0 = subId.toString().padStart(64, "0")
-    // const stringSubId = fill0.padStart(66, zeroX);
-    // console.log("stringSubId", stringSubId);
+    const zeroX = "0x";
+    let subId = Number(4)
+    const fill0 = subId.toString().padStart(64, "0")
+    const stringSubId = fill0.padStart(66, zeroX);
+    const assetId = ReceiptMintCoder.getAssetId(token_contract_id, stringSubId);
 
-    // const recipientAddress = new Address(receiver_address);
-    // const recipientIdentity = { Address: { bits: recipientAddress.toHexString() }};
-    // console.log("recipientIdentity",  recipientAddress.toHexString(),receiver_address );
+    console.log("assetId ---------------->", assetId);
+
+    const recipientAddress = new Address(receiver_address);
+    const recipientIdentity = { Address: { bits: recipientAddress.toHexString() }};
+    console.log("recipientIdentity",  recipientAddress.toHexString(),receiver_address );
     
     // const owner_address_addr_npm = new Address(owner_address);
     // const ownerAddress = {
@@ -77,15 +79,13 @@ const main = async () => {
     // let ownership = await initialize_owner_tx.waitForResult();
     // console.log("Ownership transactionId:", ownership.transactionId);
 
-    // const {transactionId} = await contractInstance.functions.mint(recipientIdentity,stringSubId, 1e7).call();
-    // console.log("transactionResult", transactionId);  
+    const {transactionId} = await tokenInstance.functions.mint(recipientIdentity,stringSubId, 1e9).call();
+    console.log("transactionResult", transactionId);  
 
 
-    // const assetId = ReceiptMintCoder.getAssetId(market_contract_id, stringSubId);
-    // console.log("assetId", assetId);
     
-    // const src20_balance_before = await RECIPIENT.getBalance(assetId);
-    // console.log("src20_balance_before", Number(src20_balance_before));
+    const src20_balance_before = await RECIPIENT.getBalance(assetId);
+    console.log("src20_balance_before", Number(src20_balance_before)/1e9);
 
     // const tx = await RECIPIENT.transfer(owner_address, 1e5,assetId)
     // console.log("tx", tx.id);
