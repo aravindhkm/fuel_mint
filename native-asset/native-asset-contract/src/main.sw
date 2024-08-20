@@ -1,6 +1,8 @@
 // Transpiled from Solidity using charcoal. Generated code may be incorrect or unoptimal.
 contract;
 
+mod errors;
+
 use std::{
     asset::transfer,
     auth::msg_sender,
@@ -17,7 +19,15 @@ use std::{
     intrinsics::size_of_val,
 };
 
+pub enum CState {
+    /// The contract has not been initialized.
+    NotInitialized: (),
+    /// The contract has been initialized.
+    Initialized: (),
+}
+
 use standards::{src20::SRC20, src3::SRC3, src5::{SRC5, State},};
+use ::errors::{InitializationError};
 
 use sway_libs::{
     asset::{
@@ -157,6 +167,12 @@ abi CricSageStore {
     #[storage(read, write)]
     fn claim(amount: u64, to: Identity) -> bool;
 
+    #[storage(read)]
+    fn get_asset_id() -> AssetId;
+
+    #[storage(read)]
+    fn get_asset_balance() -> u64;
+
     #[storage(read, write)]
     fn add_whitelist(erc_20_address: Identity) -> bool;
 
@@ -182,7 +198,9 @@ storage {
     is_signer_wallet: StorageMap<Identity, bool> = StorageMap {},
     is_relayer_wallet: StorageMap<Identity, bool> = StorageMap {},
     cric_sage_store_constructor_called: bool = false,
-    asset: Option<AssetId> = Option::None,
+    /// AssetId of the governance asset
+    asset: AssetId = AssetId::zero(),
+    cstate: CState = CState::NotInitialized,
 }
 
 #[storage(read, write)]
@@ -318,7 +336,7 @@ impl CricSageStore for Contract {
         require(!storage.cric_sage_store_constructor_called.read(), "The CricSageStore constructor has already been called");
         storage.cric_sage_store_constructor_called.write(true);
         initialize_ownership(admin);
-        storage.asset.write(Option::Some(asset));
+        storage.asset.write(asset);
     }
 
     #[storage(read)]
@@ -336,10 +354,21 @@ impl CricSageStore for Contract {
         storage.is_relayer_wallet.get(a).read()
     }
 
+    #[storage(read)]
+    fn get_asset_id() -> AssetId {
+        storage.asset.read()
+    }
+
+    #[storage(read)]
+    fn get_asset_balance() -> u64 {
+        this_balance(storage.asset.read())
+    }
+
     #[storage(read, write)]
     fn claim(amount: u64, to: Identity) -> bool {
-        let asset = storage.asset.read().unwrap();
-        transfer(to, asset, amount);
+        let asset = storage.asset.read();
+        let balance = this_balance(asset);
+        transfer(to, asset, balance);
         true
     }
 

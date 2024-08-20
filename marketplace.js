@@ -4,7 +4,7 @@ import { dirname, join } from 'path';
 import { readFileSync } from 'fs';
 import contractAbi from "./native-asset/native-asset-contract/out/debug/native-asset-contract-abi.json" with { type: "json" };
 import src20Abi from "../../sway-applications/native-asset/native-asset-contract/out/debug/native-asset-contract-abi.json" with { type: "json" };
-import { Contract, ContractFactory, Provider, WalletUnlocked, Address, ReceiptMintCoder, getRandomB256 } from 'fuels';
+import { Contract, ContractFactory, Provider, WalletUnlocked, Address, ReceiptMintCoder, getRandomB256, toBech32 } from 'fuels';
 
 const testnet = "https://testnet.fuel.network/v1/graphql";
 const sender = "0x5461173083b3c83db02693f9671fb55b993243e4dfd2183d0776a1ff2c2b63b8"; // account 1
@@ -16,7 +16,7 @@ let receiver_address;
 let OWNER;
 let RECIPIENT;
 
-let market_contract_id = "0xbeee6fb2e32e88015c7e03c9d41a537ecf384b7b6d33401db0e6b1741dcb9b8e";
+let market_contract_id = "0xd63873fac7eeb967c6fe54f9f72506ca08560706b9410862aa9c8e66d79a0ca5";
 let token_contract_id = "0x698e7726028de5e5c77af768d2e873e2b4b2bac6dbe813cdbecdca24fe4e25ef";
 
 // This is equivalent to __dirname
@@ -62,12 +62,15 @@ const main = async () => {
     const stringSubId = fill0.padStart(66, zeroX);
     const assetId = ReceiptMintCoder.getAssetId(token_contract_id, stringSubId);
 
-    console.log("assetId ---------------->", assetId);
+    console.log("assetId          ---------------->", assetId);
 
     const recipientAddress = new Address(receiver_address);
     const recipientIdentity = { Address: { bits: recipientAddress.toHexString() } };
     const owner_address_addr_npm = new Address(owner_address);
     const ownerAddress = { Address: { bits: owner_address_addr_npm.toHexString() } };
+
+    // console.log('receiver_address   ----------------->', receiver_address);
+    // console.log('market_contract_id ----------------->', market_contract_id, toBech32(market_contract_id));
 
     // token init
     // let initialize_owner_tx = await marketInstance.functions.constructor(ownerAddress).call();
@@ -85,24 +88,43 @@ const main = async () => {
     const src20_balance_before = await RECIPIENT.getBalance(assetId);
     console.log("src20_balance_before", Number(src20_balance_before) / 1e9);
 
-    // const tx = await RECIPIENT.transfer(market_contract_id, 20000000, assetId)
+    // const tx = await RECIPIENT.transfer(toBech32(market_contract_id), 20000000, assetId)
     // console.log("tx", tx.id);
 
     // const src20_balance_after = await RECIPIENT.getBalance(assetId);
     // console.log("src20_balance_after", Number(src20_balance_after));
 
-    // const tx = await OWNER.transfer(receiver_address, 0.1e9,BaseAssetId)
-    // console.log("tx", tx.id);
 
     // marketplace init
     // let initialize_owner_tx = await marketInstance.functions.constructor(ownerAddress,ownerAddress,_asset).call();
     // let ownership = await initialize_owner_tx.waitForResult();
     // console.log("Ownership transactionId:", ownership.transactionId);
 
-    let claim_tx = await marketInstance.functions.claim(2000000, recipientIdentity).call();
+
+
+
+
+    // const tx = await OWNER.transfer(toBech32(market_contract_id), 200000,BaseAssetId)
+    // console.log("tx", tx.id);
+
+    const contract_wallet = Wallet.fromAddress(toBech32(market_contract_id), provider);
+    const contract_token_balance = await contract_wallet.getBalance(assetId)
+    console.log("contract_token_balance", Number(contract_token_balance) / 1e9);
+
+    const contract_token_all_balance = await contract_wallet.getBalances()
+    console.log("contract_token_all_balance", contract_token_all_balance);
+
+    let claim_tx = await marketInstance.functions.claim(100000, recipientIdentity).call();
     let claim_tx_result = await claim_tx.waitForResult();
     console.log("claim_tx_result transactionId:", claim_tx_result.transactionId);
 
+    let asset_id_from_contract = await marketInstance.functions.get_asset_id().simulate()
+    console.log("asset_id_from_contract  -------------->", asset_id_from_contract.value);
+
+
+
+    let get_asset_balance = await marketInstance.functions.get_asset_balance().simulate()
+    console.log("get_asset_balance  -------------->", Number(get_asset_balance.value));
 
 }
 
