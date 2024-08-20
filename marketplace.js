@@ -4,7 +4,7 @@ import { dirname, join } from 'path';
 import { readFileSync } from 'fs';
 import contractAbi from "./native-asset/native-asset-contract/out/debug/native-asset-contract-abi.json" with { type: "json" };
 import src20Abi from "../../sway-applications/native-asset/native-asset-contract/out/debug/native-asset-contract-abi.json" with { type: "json" };
-import { Contract, ContractFactory, Provider, WalletUnlocked, Address, ReceiptMintCoder , getRandomB256} from 'fuels';
+import { Contract, ContractFactory, Provider, WalletUnlocked, Address, ReceiptMintCoder, getRandomB256 } from 'fuels';
 
 const testnet = "https://testnet.fuel.network/v1/graphql";
 const sender = "0x5461173083b3c83db02693f9671fb55b993243e4dfd2183d0776a1ff2c2b63b8"; // account 1
@@ -27,7 +27,7 @@ const getBalance = async () => {
     const owner_balance = await OWNER.getBalance();
     owner_address = (await OWNER.address).bech32Address;
     const receiver_balance = await RECIPIENT.getBalance();
-    receiver_address = (await RECIPIENT.address).bech32Address;    
+    receiver_address = (await RECIPIENT.address).bech32Address;
 
     // console.log("OWNER balance", owner_address, Number(owner_balance));
     // console.log("RECIPIENT balance", receiver_address, Number(receiver_balance));
@@ -48,14 +48,14 @@ const main = async () => {
 
     // console.log("BaseAssetId", BaseAssetId);
     await getBalance();
-    
-    const contractInstance = new Contract(market_contract_id, contractAbi, OWNER);
+
+    const marketInstance = new Contract(market_contract_id, contractAbi, OWNER);
     const tokenInstance = new Contract(token_contract_id, src20Abi, OWNER);
 
-    
+
     const total_assets = await tokenInstance.functions.total_assets().simulate();
     console.log("total_assets ---------------->", Number(total_assets.value));
-    
+
     const zeroX = "0x";
     let subId = Number(4)
     const fill0 = subId.toString().padStart(64, "0")
@@ -65,29 +65,27 @@ const main = async () => {
     console.log("assetId ---------------->", assetId);
 
     const recipientAddress = new Address(receiver_address);
-    const recipientIdentity = { Address: { bits: recipientAddress.toHexString() }};
-    console.log("recipientIdentity",  recipientAddress.toHexString(),receiver_address );
-    
-    // const owner_address_addr_npm = new Address(owner_address);
-    // const ownerAddress = {
-    //     Address: {
-    //       bits: owner_address_addr_npm.toHexString()
-    //     }
-    //   };
+    const recipientIdentity = { Address: { bits: recipientAddress.toHexString() } };
+    const owner_address_addr_npm = new Address(owner_address);
+    const ownerAddress = { Address: { bits: owner_address_addr_npm.toHexString() } };
 
-    // let initialize_owner_tx = await contractInstance.functions.constructor(ownerAddress).call();
+    // token init
+    // let initialize_owner_tx = await marketInstance.functions.constructor(ownerAddress).call();
     // let ownership = await initialize_owner_tx.waitForResult();
     // console.log("Ownership transactionId:", ownership.transactionId);
+    // token mint
+    // const {transactionId} = await tokenInstance.functions.mint(recipientIdentity,stringSubId, 90000000).call();
+    // console.log("transactionResult", transactionId); 
 
-    const {transactionId} = await tokenInstance.functions.mint(recipientIdentity,stringSubId, 1e9).call();
-    console.log("transactionResult", transactionId);  
+    const _asset = { bits: assetId };
+    const total_supply = await tokenInstance.functions.total_supply(_asset).simulate();
+    console.log("total_supply  -------------->", Number(total_supply.value)/ 1e9);
 
 
-    
     const src20_balance_before = await RECIPIENT.getBalance(assetId);
-    console.log("src20_balance_before", Number(src20_balance_before)/1e9);
+    console.log("src20_balance_before", Number(src20_balance_before) / 1e9);
 
-    // const tx = await RECIPIENT.transfer(owner_address, 1e5,assetId)
+    // const tx = await RECIPIENT.transfer(market_contract_id, 20000000, assetId)
     // console.log("tx", tx.id);
 
     // const src20_balance_after = await RECIPIENT.getBalance(assetId);
@@ -95,6 +93,16 @@ const main = async () => {
 
     // const tx = await OWNER.transfer(receiver_address, 0.1e9,BaseAssetId)
     // console.log("tx", tx.id);
+
+    // marketplace init
+    // let initialize_owner_tx = await marketInstance.functions.constructor(ownerAddress,ownerAddress,_asset).call();
+    // let ownership = await initialize_owner_tx.waitForResult();
+    // console.log("Ownership transactionId:", ownership.transactionId);
+
+    let claim_tx = await marketInstance.functions.claim(2000000, recipientIdentity).call();
+    let claim_tx_result = await claim_tx.waitForResult();
+    console.log("claim_tx_result transactionId:", claim_tx_result.transactionId);
+
 
 }
 
