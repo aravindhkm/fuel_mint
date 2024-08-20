@@ -5,3 +5,9 @@ forc deploy 5461173083b3c83db02693f9671fb55b993243e4dfd2183d0776a1ff2c2b63b8 --t
 Network: https://testnet.fuel.network
 Contract ID: 0xbfa46a3867859b4499ed1b891ff6e265f6d682b08fed1e2aea22964470eafd17
 Deployed in block 0079aa7a
+
+
+// marketplace 
+Network: https://testnet.fuel.network
+Contract ID: 0xbeee6fb2e32e88015c7e03c9d41a537ecf384b7b6d33401db0e6b1741dcb9b8e
+Deployed in block 007d5e51
