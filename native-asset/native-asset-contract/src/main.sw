@@ -173,6 +173,12 @@ abi CricSageStore {
     #[storage(read)]
     fn get_asset_balance() -> u64;
 
+    #[storage(read)]
+    fn get_asset_balance_two(asset_id: AssetId) -> u64;
+
+    #[storage(read)]
+    fn get_asset_balance_all() -> u64;
+
     #[storage(read, write)]
     fn add_whitelist(erc_20_address: Identity) -> bool;
 
@@ -362,6 +368,16 @@ impl CricSageStore for Contract {
     #[storage(read)]
     fn get_asset_balance() -> u64 {
         this_balance(storage.asset.read())
+    }
+
+    #[storage(read)]
+    fn get_asset_balance_two(asset_id: AssetId) -> u64 {
+        this_balance(asset_id)
+    }
+
+    #[storage(read)]
+    fn get_asset_balance_all() -> u64 {
+        this_balance(AssetId::base())
     }
 
     #[storage(read, write)]

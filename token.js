@@ -4,10 +4,14 @@ import { dirname, join } from 'path';
 import { readFileSync } from 'fs';
 import src20Abi from "../../sway-applications/native-asset/native-asset-contract/out/debug/native-asset-contract-abi.json" with { type: "json" };
 import { Contract, ContractFactory, Provider, WalletUnlocked, Address, ReceiptMintCoder , getRandomB256} from 'fuels';
+import dotenv from 'dotenv';
+
+// Configure dotenv to load variables from .env file
+dotenv.config();
 
 const testnet = "https://testnet.fuel.network/v1/graphql";
-const sender = "0x5461173083b3c83db02693f9671fb55b993243e4dfd2183d0776a1ff2c2b63b8"; // account 1
-const receiver = "0xd30c19d79f4c6f8fbdebe0f04b6385aede6f6ef639df48d5ddd910265983284a" // account 2
+const sender = process.env.SENDER_PK;
+const receiver = process.env.RECEIVER_PK;
 
 let owner_address;
 let receiver_address;

@@ -1,10 +1,14 @@
 import { Wallet } from "fuels";
 import countabi from "../counter-contract/out/debug/counter-contract-abi.json" with { type: "json" };
 import { Contract, ContractFactory, Provider, WalletUnlocked } from 'fuels';
+import dotenv from 'dotenv';
+
+// Configure dotenv to load variables from .env file
+dotenv.config();
 
 const testnet = "https://testnet.fuel.network/v1/graphql";
-const sender = "0xde97d8624a438121b86a1956544bd72ed68cd69f2c99555b08b1e8c51ffd511c";
-const receiver = "0x5461173083b3c83db02693f9671fb55b993243e4dfd2183d0776a1ff2c2b63b8" // mahes
+const sender = process.env.OTHER_PK;
+const receiver = process.env.RECEIVER_PK;
 
 let owner_address;
 let receiver_address;
